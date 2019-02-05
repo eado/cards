@@ -6,13 +6,22 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Cards</title>
     <link rel="stylesheet" href="style.css">
+    <script src="main.js"></script>
 </head>
 <body>
-    <h1>Cards</h1>
-    <h3>Join game</h3>
+    <h1 class="main">Cards</h1>
+    <h1>Join game</h1>
     <input type="text" name="" id="">
     <button>Join!</button>
     <br><br>
-    <button>Start game</button>
+    <h1>or</h1>
+    <select id="selectgame" onchange="checkValidGameType()">
+        <option value="" disabled="disabled" selected="selected">Select a game</option>
+        <option value="gofish">Go Fish</option>
+        <option value="war">War</option>
+    </select>
+    <br>
+    <button disabled id="startgame" onclick="startNewGame()">Start new game</button>
+    <canvas id="canvas"></canvas>
 </body>
 </html>
