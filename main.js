@@ -47,6 +47,8 @@ function startNewGame() {
     canvas.addEventListener("mousemove", mousemove);
     canvas.addEventListener("mousedown", mousedown);
     canvas.addEventListener("mouseup", mouseup);
+    canvas.addEventListener("touchstart", mousedown);
+    canvas.addEventListener("touchend", mouseup);
     setInterval(resetCanvas, 100);
 }
 function resetCanvas() {
