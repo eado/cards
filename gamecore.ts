@@ -17,11 +17,12 @@ function getMousePos(canvas, evt) {
     };
 }
 
-function getTouchPos(canvas, touchEvt) {
+function getTouchPos(canvas: HTMLCanvasElement, touchEvt: TouchEvent) {
     var rect = canvas.getBoundingClientRect();
+    touchEvt.preventDefault();
     return {
-        x: touchEvt.touches[0].clientX - rect.left,
-        y: touchEvt.touches[0].clientY - rect.top
+        x: touchEvt.targetTouches[0].pageX - canvas.offsetLeft,
+        y: touchEvt.targetTouches[0].pageY - canvas.offsetTop
     };
 }
 
@@ -36,21 +37,21 @@ function startNewGame() {
     });
 
     let canvas = getCanvas()[0];
-    document.body.addEventListener("touchstart", (e) => {
-        if (e.target == canvas) {
-            e.preventDefault();
-        }
-    }, false);
-    document.body.addEventListener("touchend", (e) => {
-        if (e.target == canvas) {
-            e.preventDefault();
-        }
-    }, false);
-    document.body.addEventListener("touchmove", (e) => {
-        if (e.target == canvas) {
-            e.preventDefault();
-        }
-    }, false);
+    // document.body.addEventListener("touchstart", (e) => {
+    //     if (e.target == canvas) {
+    //         e.preventDefault();
+    //     }
+    // });
+    // document.body.addEventListener("touchend", (e) => {
+    //     if (e.target == canvas) {
+    //         e.preventDefault();
+    //     }
+    // });
+    // document.body.addEventListener("touchmove", (e) => {
+    //     if (e.target == canvas) {
+    //         e.preventDefault();
+    //     }
+    // });
 
     resetCanvas();
 
@@ -122,6 +123,7 @@ function mousedown(evt: Event) {
     objects.forEach(obj => {
         if (pos.x >= obj.pos.x && pos.x <= obj.pos.x + obj.size.x && pos.y >= obj.pos.y && pos.y <= obj.pos.y + obj.size.y) {
             obj.selected = true;
+            obj.touchOffset = { x: pos.x - obj.pos.x, y: pos.y - obj.pos.y };
         } else {
             obj.selected = false;
         }
@@ -140,7 +142,11 @@ function mousemove(evt: Event) {
     resetCanvas()
     objects.forEach((obj, index) => {
         if (obj.selected) {
-            obj.pos = getMousePos(canvas, evt);
+            let pos = getMousePos(canvas, evt);
+            pos.x -= obj.touchOffset.x
+            pos.y -= obj.touchOffset.y
+
+            obj.pos = pos
             scs.add({'request': "move", 'index': index, 'x': obj.pos.x, 'y': obj.pos.y}, () => {});
         }
     })
@@ -150,9 +156,12 @@ function touchstart(evt: TouchEvent) {
     console.log("down");
     let canvas = getCanvas()[0];
     let pos = getTouchPos(canvas, evt)
+
     objects.forEach(obj => {
         if (pos.x >= obj.pos.x && pos.x <= obj.pos.x + obj.size.x && pos.y >= obj.pos.y && pos.y <= obj.pos.y + obj.size.y) {
             obj.selected = true;
+                obj.touchOffset = { x: pos.x - obj.pos.x, y: pos.y - obj.pos.y };
+
         } else {
             obj.selected = false;
         }
@@ -164,7 +173,11 @@ function touchmove(evt: TouchEvent) {
     resetCanvas()
     objects.forEach((obj, index) => {
         if (obj.selected) {
-            obj.pos = getTouchPos(canvas, evt);
+            let pos = getTouchPos(canvas, evt);
+            pos.x -= obj.touchOffset.x
+            pos.y -= obj.touchOffset.y
+
+            obj.pos = pos
             scs.add({'request': "move", 'index': index, 'x': obj.pos.x, 'y': obj.pos.y}, () => {});
         }
     })

@@ -19,7 +19,7 @@ var GameObject = /** @class */ (function () {
     }
     return GameObject;
 }());
-var CONNURL = "ws://10.10.221.88:9001";
+var CONNURL = "ws://10.0.1.72:9001";
 var ServerconnService = /** @class */ (function () {
     function ServerconnService() {
         this._callbacks = [];
@@ -112,9 +112,10 @@ function getMousePos(canvas, evt) {
 }
 function getTouchPos(canvas, touchEvt) {
     var rect = canvas.getBoundingClientRect();
+    touchEvt.preventDefault();
     return {
-        x: touchEvt.touches[0].clientX - rect.left,
-        y: touchEvt.touches[0].clientY - rect.top
+        x: touchEvt.targetTouches[0].pageX - canvas.offsetLeft,
+        y: touchEvt.targetTouches[0].pageY - canvas.offsetTop
     };
 }
 function startNewGame() {
@@ -125,21 +126,21 @@ function startNewGame() {
         console.log(response);
     });
     var canvas = getCanvas()[0];
-    document.body.addEventListener("touchstart", function (e) {
-        if (e.target == canvas) {
-            e.preventDefault();
-        }
-    }, false);
-    document.body.addEventListener("touchend", function (e) {
-        if (e.target == canvas) {
-            e.preventDefault();
-        }
-    }, false);
-    document.body.addEventListener("touchmove", function (e) {
-        if (e.target == canvas) {
-            e.preventDefault();
-        }
-    }, false);
+    // document.body.addEventListener("touchstart", (e) => {
+    //     if (e.target == canvas) {
+    //         e.preventDefault();
+    //     }
+    // });
+    // document.body.addEventListener("touchend", (e) => {
+    //     if (e.target == canvas) {
+    //         e.preventDefault();
+    //     }
+    // });
+    // document.body.addEventListener("touchmove", (e) => {
+    //     if (e.target == canvas) {
+    //         e.preventDefault();
+    //     }
+    // });
     resetCanvas();
     objects.push(new GameObject(GameObjectType.Image, { x: 0, y: 0 }, { x: 75, y: 100 }, "cardimgs/clovers-1.png"));
     objects.push(new GameObject(GameObjectType.Image, { x: 300, y: 300 }, { x: 75, y: 100 }, "cardimgs/diamonds-13.png"));
@@ -182,6 +183,7 @@ function mousedown(evt) {
     objects.forEach(function (obj) {
         if (pos.x >= obj.pos.x && pos.x <= obj.pos.x + obj.size.x && pos.y >= obj.pos.y && pos.y <= obj.pos.y + obj.size.y) {
             obj.selected = true;
+            obj.touchOffset = { x: pos.x - obj.pos.x, y: pos.y - obj.pos.y };
         }
         else {
             obj.selected = false;
@@ -199,7 +201,10 @@ function mousemove(evt) {
     resetCanvas();
     objects.forEach(function (obj, index) {
         if (obj.selected) {
-            obj.pos = getMousePos(canvas, evt);
+            var pos = getMousePos(canvas, evt);
+            pos.x -= obj.touchOffset.x;
+            pos.y -= obj.touchOffset.y;
+            obj.pos = pos;
             scs.add({ 'request': "move", 'index': index, 'x': obj.pos.x, 'y': obj.pos.y }, function () { });
         }
     });
@@ -211,6 +216,7 @@ function touchstart(evt) {
     objects.forEach(function (obj) {
         if (pos.x >= obj.pos.x && pos.x <= obj.pos.x + obj.size.x && pos.y >= obj.pos.y && pos.y <= obj.pos.y + obj.size.y) {
             obj.selected = true;
+            obj.touchOffset = { x: pos.x - obj.pos.x, y: pos.y - obj.pos.y };
         }
         else {
             obj.selected = false;
@@ -222,7 +228,10 @@ function touchmove(evt) {
     resetCanvas();
     objects.forEach(function (obj, index) {
         if (obj.selected) {
-            obj.pos = getTouchPos(canvas, evt);
+            var pos = getTouchPos(canvas, evt);
+            pos.x -= obj.touchOffset.x;
+            pos.y -= obj.touchOffset.y;
+            obj.pos = pos;
             scs.add({ 'request': "move", 'index': index, 'x': obj.pos.x, 'y': obj.pos.y }, function () { });
         }
     });

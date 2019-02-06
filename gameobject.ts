@@ -10,6 +10,7 @@ class GameObject {
     visible: boolean
     data: string;
     size: { x: number, y: number };
+    touchOffset: { x: number, y: number };
     selected = false;
 
     constructor(type: GameObjectType, position={ x: 0, y: 0 }, size={ x: 0, y: 0 }, data="", visible=true) {
