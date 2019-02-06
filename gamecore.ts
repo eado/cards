@@ -1,4 +1,5 @@
 /// <reference path="gameobject.ts" />
+/// <reference path="main.ts" />
 
 let objects: GameObject[] = [];
 
@@ -71,6 +72,8 @@ function startNewGame() {
     canvas.addEventListener("touchmove", touchmove);
     canvas.addEventListener("touchend", () => { canvas.dispatchEvent(new MouseEvent("mouseup")) });
 
+    scs.add({'request': "getpos"}, (data) => { objects[data.index].pos.x = data.x; objects[data.index].pos.y = data.y; })
+    console.log("hello")
     setInterval(resetCanvas, 100);
 }
 
@@ -120,9 +123,10 @@ function mouseup(evt: Event) {
 function mousemove(evt: Event) {
     let canvas = getCanvas()[0];
     resetCanvas()
-    objects.forEach(obj => {
+    objects.forEach((obj, index) => {
         if (obj.selected) {
             obj.pos = getMousePos(canvas, evt);
+            scs.add({'request': "move", 'index': index, 'x': obj.pos.x, 'y': obj.pos.y}, () => {});
         }
     })
 }
@@ -143,9 +147,10 @@ function touchstart(evt: TouchEvent) {
 function touchmove(evt: TouchEvent) {
     let canvas = getCanvas()[0];
     resetCanvas()
-    objects.forEach(obj => {
+    objects.forEach((obj, index) => {
         if (obj.selected) {
             obj.pos = getTouchPos(canvas, evt);
+            scs.add({'request': "move", 'index': index, 'x': obj.pos.x, 'y': obj.pos.y}, () => {});
         }
     })
 }

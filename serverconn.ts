@@ -1,4 +1,4 @@
-const CONNURL = "ws://localhost:9001";
+const CONNURL = "ws://10.10.221.88:9001"; 
 
 class ServerconnService {
     
