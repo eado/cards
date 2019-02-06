@@ -143,6 +143,9 @@ function startNewGame() {
     resetCanvas();
     objects.push(new GameObject(GameObjectType.Image, { x: 0, y: 0 }, { x: 75, y: 100 }, "cardimgs/clovers-1.png"));
     objects.push(new GameObject(GameObjectType.Image, { x: 300, y: 300 }, { x: 75, y: 100 }, "cardimgs/diamonds-13.png"));
+    objects.push(new GameObject(GameObjectType.Image, { x: 100, y: 300 }, { x: 75, y: 100 }, "cardimgs/diamonds-12.png"));
+    objects.push(new GameObject(GameObjectType.Image, { x: 0, y: 300 }, { x: 75, y: 100 }, "cardimgs/diamonds-11.png"));
+    objects.push(new GameObject(GameObjectType.Image, { x: 300, y: 400 }, { x: 75, y: 100 }, "cardimgs/diamonds-10.png"));
     canvas.addEventListener("mousemove", mousemove);
     canvas.addEventListener("mousedown", mousedown);
     canvas.addEventListener("mouseup", mouseup);
