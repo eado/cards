@@ -16,15 +16,40 @@ function getMousePos(canvas, evt) {
     };
 }
 
+function getTouchPos(canvas, touchEvt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+        x: touchEvt.touches[0].clientX - rect.left,
+        y: touchEvt.touches[0].clientY - rect.top
+    };
+}
+
 function startNewGame() {
     let select = document.getElementById("selectgame") as HTMLSelectElement;
     let option = select.options[select.selectedIndex].value;
+
+    document.getElementsByTagName("body")[0].innerHTML = "<canvas id='canvas'></canvas>"
 
     scs.add({'request': 'newgame', 'type': option}, (response) => {
         console.log(response);
     });
 
-    let canvas = getCanvas()[0]; let ctx = getCanvas()[1];
+    let canvas = getCanvas()[0];
+    document.body.addEventListener("touchstart", (e) => {
+        if (e.target == canvas) {
+            e.preventDefault();
+        }
+    }, false);
+    document.body.addEventListener("touchend", (e) => {
+        if (e.target == canvas) {
+            e.preventDefault();
+        }
+    }, false);
+    document.body.addEventListener("touchmove", (e) => {
+        if (e.target == canvas) {
+            e.preventDefault();
+        }
+    }, false);
 
     resetCanvas();
 
@@ -42,6 +67,9 @@ function startNewGame() {
     canvas.addEventListener("mousemove", mousemove);
     canvas.addEventListener("mousedown", mousedown);
     canvas.addEventListener("mouseup", mouseup)
+    canvas.addEventListener("touchstart", touchstart);
+    canvas.addEventListener("touchmove", touchmove);
+    canvas.addEventListener("touchend", () => { canvas.dispatchEvent(new MouseEvent("mouseup")) });
 
     setInterval(resetCanvas, 100);
 }
@@ -53,11 +81,11 @@ function resetCanvas() {
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-
+    
     ctx.moveTo(0, 0);
     ctx.rect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "white";
-    ctx.fill()
+    ctx.fill()  
 
     objects.forEach(obj => {
         if (obj.type == GameObjectType.Image) {
@@ -95,6 +123,29 @@ function mousemove(evt: Event) {
     objects.forEach(obj => {
         if (obj.selected) {
             obj.pos = getMousePos(canvas, evt);
+        }
+    })
+}
+
+function touchstart(evt: TouchEvent) {
+    console.log("down");
+    let canvas = getCanvas()[0];
+    let pos = getTouchPos(canvas, evt)
+    objects.forEach(obj => {
+        if (pos.x >= obj.pos.x && pos.x <= obj.pos.x + obj.size.x && pos.y >= obj.pos.y && pos.y <= obj.pos.y + obj.size.y) {
+            obj.selected = true;
+        } else {
+            obj.selected = false;
+        }
+    });
+}
+
+function touchmove(evt: TouchEvent) {
+    let canvas = getCanvas()[0];
+    resetCanvas()
+    objects.forEach(obj => {
+        if (obj.selected) {
+            obj.pos = getTouchPos(canvas, evt);
         }
     })
 }

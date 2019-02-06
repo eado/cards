@@ -33,23 +33,45 @@ function getMousePos(canvas, evt) {
         y: evt.clientY - rect.top
     };
 }
+function getTouchPos(canvas, touchEvt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+        x: touchEvt.touches[0].clientX - rect.left,
+        y: touchEvt.touches[0].clientY - rect.top
+    };
+}
 function startNewGame() {
     var select = document.getElementById("selectgame");
     var option = select.options[select.selectedIndex].value;
+    document.getElementsByTagName("body")[0].innerHTML = "<canvas id='canvas'></canvas>";
     scs.add({ 'request': 'newgame', 'type': option }, function (response) {
         console.log(response);
     });
     var canvas = getCanvas()[0];
-    var ctx = getCanvas()[1];
+    document.body.addEventListener("touchstart", function (e) {
+        if (e.target == canvas) {
+            e.preventDefault();
+        }
+    }, false);
+    document.body.addEventListener("touchend", function (e) {
+        if (e.target == canvas) {
+            e.preventDefault();
+        }
+    }, false);
+    document.body.addEventListener("touchmove", function (e) {
+        if (e.target == canvas) {
+            e.preventDefault();
+        }
+    }, false);
     resetCanvas();
     objects.push(new GameObject(GameObjectType.Image, { x: 0, y: 0 }, { x: 75, y: 100 }, "cardimgs/clovers-1.png"));
     objects.push(new GameObject(GameObjectType.Image, { x: 300, y: 300 }, { x: 75, y: 100 }, "cardimgs/diamonds-13.png"));
     canvas.addEventListener("mousemove", mousemove);
     canvas.addEventListener("mousedown", mousedown);
     canvas.addEventListener("mouseup", mouseup);
-    canvas.addEventListener("touchstart", mousedown);
-    canvas.addEventListener("touchend", mouseup);
-    canvas.addEventListener("touchmove", mousedown);
+    canvas.addEventListener("touchstart", touchstart);
+    canvas.addEventListener("touchmove", touchmove);
+    canvas.addEventListener("touchend", function () { canvas.dispatchEvent(new MouseEvent("mouseup")); });
     setInterval(resetCanvas, 100);
 }
 function resetCanvas() {
@@ -96,6 +118,28 @@ function mousemove(evt) {
     objects.forEach(function (obj) {
         if (obj.selected) {
             obj.pos = getMousePos(canvas, evt);
+        }
+    });
+}
+function touchstart(evt) {
+    console.log("down");
+    var canvas = getCanvas()[0];
+    var pos = getTouchPos(canvas, evt);
+    objects.forEach(function (obj) {
+        if (pos.x >= obj.pos.x && pos.x <= obj.pos.x + obj.size.x && pos.y >= obj.pos.y && pos.y <= obj.pos.y + obj.size.y) {
+            obj.selected = true;
+        }
+        else {
+            obj.selected = false;
+        }
+    });
+}
+function touchmove(evt) {
+    var canvas = getCanvas()[0];
+    resetCanvas();
+    objects.forEach(function (obj) {
+        if (obj.selected) {
+            obj.pos = getTouchPos(canvas, evt);
         }
     });
 }
